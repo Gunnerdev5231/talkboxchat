@@ -65,14 +65,14 @@
     }
 
     .other-message {
-        background: #A060FF;
+        background: #fff;
         align-self: flex-start;
     }
 
     .material-icons {
         /* Example: Increase icon size and change color */
         font-size: 24px; /* Adjust as needed */
-        color: #ffffff; /* White color for better visibility */
+        color: #000; /* White color for better visibility */
     }
 
     </style>
@@ -82,7 +82,7 @@
     <div id="messages"></div>
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
-        <button onclick="publishMessage()">Send</button>
+        <button onclick="publishMessage()" style="margin-left: 10px;"><i class="material-icons">send</i></button>
         <button onclick="clearChatHistory()" style="margin-left: 10px;"><i class="material-icons">delete</i></button>
     </div>
 </div>
