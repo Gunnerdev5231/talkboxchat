@@ -5,62 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Chat Application</title>
     <style>
-        .container {
-            width: 100%;
-            max-width: 320px;
-            margin: auto;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f7f7f7;
-        }
-        #chat {
-            display: flex;
-            flex-direction: column;
-            height: 90vh;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            background: #fff;
-        }
-        #messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #e5e5e5;
-        }
-        #input {
-            display: flex;
-            padding: 10px;
-        }
-        #input input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-right: 10px;
-        }
-        #input button {
-            padding: 10px;
-            background-color: #333;
-            color: white;
-            border: none;
-        }
-        .message {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            max-width: 70%;
-        }
-        .my-message {
-            background: #dcf8c6;
-            align-self: flex-end;
-        }
-        .other-message {
-            background: #fff;
-            align-self: flex-start;
-        }
+        /* ... (your existing CSS styles) ... */
     </style>
 </head>
 <body>
@@ -130,42 +75,44 @@
         }
     }
     // Function to save chat to local storage
-function saveChatToLocalStorage(message, senderName, isMyMessage) {
-  let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-  chatHistory.push({ message, senderName, isMyMessage, timestamp: new Date().toISOString() });
-  localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-}
-// Function to load chat from local storage
-function loadChatFromLocalStorage() {
-  let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-  const messagesDiv = document.getElementById('messages');
-  messagesDiv.innerHTML = '';  // Clear existing messages from the display
-  chatHistory.forEach(chat => {
-    displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
-  });
-}
-// Update the displayMessage function to save messages
-function displayMessage(message, senderName, publisherUuid) {
-  const messagesDiv = document.getElementById('messages');
-  const messageElem = document.createElement('div');
-  messageElem.classList.add('message');
-  let isMyMessage = publisherUuid === uuid;
-  if (isMyMessage) {
-    messageElem.classList.add('my-message');
-    messageElem.textContent = `You: ${message}`;
-  } else {
-    messageElem.classList.add('other-message');
-    messageElem.textContent = `${senderName}: ${message}`;
-  }
-  messagesDiv.appendChild(messageElem);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  // Save the message to local storage
-  saveChatToLocalStorage(message, senderName, isMyMessage);
-}
-// Call loadChatFromLocalStorage when the page loads
-window.onload = function() {
-  loadChatFromLocalStorage();
-};
+    function saveChatToLocalStorage(message, senderName, isMyMessage) {
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+        chatHistory.push({ message, senderName, isMyMessage, timestamp: new Date().toISOString() });
+        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    }
+    // Function to load chat from local storage
+    function loadChatFromLocalStorage() {
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = '';  // Clear existing messages from the display
+        chatHistory.forEach(chat => {
+            displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
+        });
+    }
+    // Update the displayMessage function to save messages
+    function displayMessage(message, senderName, publisherUuid) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElem = document.createElement('div');
+        messageElem.classList.add('message');
+        let isMyMessage = publisherUuid === uuid;
+        if (isMyMessage) {
+            messageElem.classList.add('my-message');
+            messageElem.textContent = `You: ${message}`;
+        } else {
+            messageElem.classList.add('other-message');
+            messageElem.textContent = `${senderName}: ${message}`;
+        }
+        messagesDiv.appendChild(messageElem);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // Save the message to local storage
+        saveChatToLocalStorage(message, senderName, isMyMessage);
+    }
+    // Call loadChatFromLocalStorage when the page loads
+    window.onload = function() {
+        // Clear existing chat history from local storage
+        localStorage.removeItem('chatHistory');
+        loadChatFromLocalStorage();
+    };
 </script>
 </body>
 </html>
