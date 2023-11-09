@@ -128,15 +128,15 @@ function displayMessage(message, senderName, isMyMessage) {
     const messageElem = document.createElement('div');
     messageElem.classList.add('message');
     
-    // Check if the last message is from the user (You) and remove it
-    const lastMessage = messagesDiv.lastElementChild;
-    if (isMyMessage && lastMessage && lastMessage.classList.contains('my-message')) {
-        messagesDiv.removeChild(lastMessage);
-    }
-
     if (isMyMessage) {
         messageElem.classList.add('my-message');
         messageElem.textContent = `You: ${message}`;
+        
+        // Remove any previous "You" message
+        const previousMyMessage = messagesDiv.querySelector('.my-message');
+        if (previousMyMessage) {
+            messagesDiv.removeChild(previousMyMessage);
+        }
     } else {
         messageElem.classList.add('other-message');
         if (senderName === userName) {
@@ -145,6 +145,11 @@ function displayMessage(message, senderName, isMyMessage) {
             messageElem.textContent = `${senderName}: ${message}`;
         }
     }
+
+    messagesDiv.appendChild(messageElem);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
 
     messagesDiv.appendChild(messageElem);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
