@@ -4,97 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talkbox</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-        }
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+    }
 
-        #chat {
-            display: flex;
-            flex-direction: column;
-            height: 90vh;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            background: #000;
-        }
+    #chat {
+        display: flex;
+        flex-direction: column;
+        height: 90vh;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background: #000;
+    }
 
-        #messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #000;
-        }
+    #messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #000;
+    }
 
-        #input {
-            display: flex;
-            padding: 10px;
-            color: #A060FF;
-        }
+    #input {
+        display: flex;
+        padding: 10px;
+        color: #A060FF;
+    }
 
-        #input input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #000;
-            margin-right: 10px;
-            border-radius: 5px;
-            color: black;
-        }
+    #input input {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #000;
+        margin-right: 10px;
+        border-radius: 5px;
+        color: black;
+    }
 
-        #input button {
-            padding: 10px;
-            background-color: #00E4E3;
-            color: black;
-            border: none;
-            border-radius: 5px;
-        }
+    #input button {
+        padding: 10px;
+        background-color: #00E4E3;
+        color: black;
+        border: none;
+        border-radius: 5px;
+    }
 
-        .message {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            max-width: 70%;
-        }
+    .message {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        max-width: 70%;
+    }
 
-        .my-message {
-            background: #00E4E3;
-            align-self: flex-end;
-        }
+    .my-message {
+        background: #00E4E3;
+        align-self: flex-end;
+    }
 
-        .other-message {
-            background: #fff;
-            align-self: flex-start;
-        }
+    .other-message {
+        background: #fff;
+        align-self: flex-start;
+    }
 
-        .material-icons {
-            font-size: 24px;
-            color: #A060FF;
-        }
+    .material-icons {
+        /* Example: Increase icon size and change color */
+        font-size: 24px; /* Adjust as needed */
+        color: #A060FF; /* White color for better visibility */
+    }
 
-        #account {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            background: #000;
-        }
-
-        #account input {
-            padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #000;
-            border-radius: 5px;
-        }
-
-        #account button {
-            padding: 10px;
-            background-color: #00E4E3;
-            color: black;
-            border: none;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
@@ -104,52 +85,69 @@
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()" style="margin-left: 10px;"><i class="material-icons">send</i></button>
         <button onclick="clearChatHistory()" style="margin-left: 10px;"><i class="material-icons">delete</i></button>
+        <button onclick="signOut()" style="margin-left: 10px;">Sign Out</button>
     </div>
 </div>
-<div id="account">
-    <input type="text" id="usernameInput" placeholder="Enter your username">
-    <button onclick="createAccount()">Create Account</button>
-</div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
-<script>
-    function generateUUID() {
+<script type="module">
+  // Import the functions you need from the Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Initialize Firebase
+  const firebaseApp = initializeApp(firebaseConfig);
+  const auth = getAuth(firebaseApp);
+
+  // Function to sign out the user
+  function signOut() {
+    firebaseSignOut(auth)
+      .then(() => {
+        // Redirect or handle sign-out success as needed
+        // For example, you can redirect to a sign-in page
+      })
+      .catch((error) => {
+        // Handle sign-out error
+        console.error("Sign-out error:", error);
+      });
+  }
+
+ function generateUUID() {
         return crypto.randomUUID();
     }
-
-    let userId = localStorage.getItem('userId');
-    let userName = localStorage.getItem('username');
-
-    if (!userId || !userName) {
-        document.getElementById('account').style.display = 'block';
+    let uuid = localStorage.getItem('uuid');
+    if (!uuid) {
+        uuid = generateUUID();
+        localStorage.setItem('uuid', uuid);
     }
-
-    function createAccount() {
-        const usernameInput = document.getElementById('usernameInput');
-        const username = usernameInput.value.trim();
-
-        if (username) {
-            userId = generateUUID();
-            localStorage.setItem('userId', userId);
-            localStorage.setItem('username', username);
-            document.getElementById('account').style.display = 'none';
-            displayMessage(`Welcome, ${username}!`, 'System', true);
+    let userName = localStorage.getItem('userName');
+    if (!userName) {
+        userName = prompt('Please enter your name:', 'Guest');
+        if (userName) {
+            localStorage.setItem('userName', userName);
         } else {
-            alert('Please enter a valid username.');
+            userName = 'Guest';
         }
     }
-
     const pubnub = new PubNub({
         publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
         subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
-        uuid: userId
+        uuid: uuid
     });
-
     function saveChatToLocalStorage(message, senderName, isMyMessage) {
         let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
         chatHistory.push({ message, senderName, isMyMessage, timestamp: new Date().toISOString() });
         localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
-
     function loadChatFromLocalStorage() {
         let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
         const messagesDiv = document.getElementById('messages');
@@ -158,11 +156,9 @@
             displayMessage(chat.message, chat.senderName, chat.isMyMessage);
         });
     }
-
     window.onload = function() {
         loadChatFromLocalStorage();
     }
-
     function displayMessage(message, senderName, isMyMessage) {
         const messagesDiv = document.getElementById('messages');
         const messageElem = document.createElement('div');
@@ -177,75 +173,87 @@
         messagesDiv.appendChild(messageElem);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-
     function publishMessage() {
         const messageBox = document.getElementById('messageBox');
         const messageContent = messageBox.value.trim();
         if (messageContent) {
             pubnub.publish({
                 channel: 'chat_channel',
-                message: { text: messageContent, senderName: userName, uuid: userId }
+                message: { text: messageContent, senderName: userName, uuid: uuid }
             }, function(status, response) {
                 if (status.error) {
                     console.log(status);
                 } else {
                     console.log("Message Published w/ timetoken", response.timetoken);
-                    displayMessage(messageContent, 'You', true);
+                    displayMessage(messageContent, 'You', true); // Display only the user's own messages
                     saveChatToLocalStorage(messageContent, userName, true);
                     messageBox.value = '';
                 }
             });
         }
     }
-
     pubnub.subscribe({
         channels: ['chat_channel'],
         withPresence: true
     });
-
+    
     document.getElementById('messageBox').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             publishMessage();
         }
     });
-
     pubnub.addListener({
         message: function(event) {
-            if(event.publisher !== userId) {
+            if(event.publisher !== uuid) {
                 displayMessage(event.message.text, event.message.senderName, false);
                 saveChatToLocalStorage(event.message.text, event.message.senderName, false);
             }
         }
     });
-
-    let messageCount = 0;
-
-    function updateTitleCount() {
-        if (messageCount > 0) {
-            document.title = `(${messageCount}) Talkbox - Chat Application`;
-        } else {
-            document.title = `Talkbox`;
-        }
+    // Global variable to keep track of the message count
+let messageCount = 0;
+// Function to update the document title with the unread message count
+function updateTitleCount() {
+    if (messageCount > 0) {
+        document.title = `(${messageCount}) Simple Chat Application`;
+    } else {
+        document.title = `Simple Chat Application`;
     }
-
-    window.addEventListener('focus', function() {
-        messageCount = 0;
+}
+// Event listener for when the tab gains focus
+window.addEventListener('focus', function() {
+    messageCount = 0;
+    updateTitleCount();
+});
+// Modify the existing displayMessage function to increment the messageCount when a new message is received
+const originalDisplayMessage = displayMessage;
+displayMessage = function(message, senderName, isMyMessage) {
+    // Call the original displayMessage function
+    originalDisplayMessage(message, senderName, isMyMessage);
+    
+    // If it's not the user's own message and the window is not focused, increment the message count
+    if (!isMyMessage && !document.hasFocus()) {
+        messageCount++;
         updateTitleCount();
-    });
-
-    const originalDisplayMessage = displayMessage;
-    displayMessage = function(message, senderName, isMyMessage) {
-        originalDisplayMessage(message, senderName, isMyMessage);
-        if (!isMyMessage && !document.hasFocus()) {
-            messageCount++;
-            updateTitleCount();
-        }
-    };
-
-    function clearChatHistory() {
-        localStorage.removeItem('chatHistory');
-        loadChatFromLocalStorage();
     }
+};
+    
+function clearChatHistory() {
+    localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
+    loadChatFromLocalStorage(); // Reloads the chat to update the UI
+}
+
+  // Example code for Firebase Authentication
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, you can access user information via 'user' variable
+      console.log("User is signed in:", user.displayName);
+    } else {
+      // User is signed out
+      console.log("User is signed out");
+      // You can handle the sign-out event here
+    }
+  });
 </script>
 </body>
 </html>
