@@ -91,61 +91,64 @@
 
     // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    function register() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                // Registered
-                const user = userCredential.user;
-                console.log('Registered', user);
-                document.getElementById('chat').style.display = 'block';
-                document.getElementById('auth-container').style.display = 'none';
-            })
-            .catch((error) => {
-                console.error('Registration Failed', error);
-            });
-    }
-
-    function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                // Logged in
-                const user = userCredential.user;
-                console.log('Logged in', user);
-                document.getElementById('chat').style.display = 'block';
-                document.getElementById('auth-container').style.display = 'none';
-            })
-            .catch((error) => {
-                console.error('Login Failed', error);
-            });
-    }
-
-    function logout() {
-        auth.signOut().then(() => {
-            // Sign-out successful.
-            document.getElementById('chat').style.display = 'none';
-            document.getElementById('auth-container').style.display = 'block';
-        }).catch((error) => {
-            // An error happened.
-            console.error('Logout Failed', error);
-        });
-    }
-
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            // User is signed in, show chat
-            document.getElementById('chat').style.display = 'block';
-            document.getElementById('auth-container').style.display = 'none';
-        } else {
-            // No user is signed in, show auth
-            document.getElementById('chat').style.display = 'none';
-            document.getElementById('auth-container').style.display = 'block';
+    document.addEventListener('DOMContentLoaded', function() {
+        function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Registered
+                    const user = userCredential.user;
+                    console.log('Registered', user);
+                    document.getElementById('chat').style.display = 'block';
+                    document.getElementById('auth-container').style.display = 'none';
+                })
+                .catch((error) => {
+                    console.error('Registration Failed', error);
+                });
         }
+
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Logged in
+                    const user = userCredential.user;
+                    console.log('Logged in', user);
+                    document.getElementById('chat').style.display = 'block';
+                    document.getElementById('auth-container').style.display = 'none';
+                })
+                .catch((error) => {
+                    console.error('Login Failed', error);
+                });
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                // Sign-out successful.
+                document.getElementById('chat').style.display = 'none';
+                document.getElementById('auth-container').style.display = 'block';
+            }).catch((error) => {
+                // An error happened.
+                console.error('Logout Failed', error);
+            });
+        }
+        
+        document.getElementById('register-button').addEventListener('click', register);
+        document.getElementById('login-button').addEventListener('click', login);
+        document.getElementById('logout-button').addEventListener('click', logout);
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, show chat
+                document.getElementById('chat').style.display = 'block';
+                document.getElementById('auth-container').style.display = 'none';
+            } else {
+                // No user is signed in, show auth
+                document.getElementById('chat').style.display = 'none';
+                document.getElementById('auth-container').style.display = 'block';
+            }
     });
 </script>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -164,8 +167,8 @@
 
     // Initialize PubNub
     const pubnub = new PubNub({
-        publishKey: 'YOUR_PUB_KEY',
-        subscribeKey: 'YOUR_SUB_KEY',
+        publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
+        subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
         uuid: uuid
     });
 
