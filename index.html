@@ -121,11 +121,19 @@
         loadChatFromLocalStorage();
     }
 
-    // Function to display messages
+    
+// Function to display messages
 function displayMessage(message, senderName, isMyMessage) {
     const messagesDiv = document.getElementById('messages');
     const messageElem = document.createElement('div');
     messageElem.classList.add('message');
+    
+    // Check if the last message is from the user (You) and remove it
+    const lastMessage = messagesDiv.lastElementChild;
+    if (lastMessage && lastMessage.classList.contains('my-message')) {
+        messagesDiv.removeChild(lastMessage);
+    }
+
     if (isMyMessage) {
         messageElem.classList.add('my-message');
         messageElem.textContent = `You: ${message}`;
@@ -137,16 +145,11 @@ function displayMessage(message, senderName, isMyMessage) {
             messageElem.textContent = `${senderName}: ${message}`;
         }
     }
-    
-    // Check if the last message is from the user (You) and remove it
-    const lastMessage = messagesDiv.lastElementChild;
-    if (lastMessage && lastMessage.classList.contains('my-message')) {
-        messagesDiv.removeChild(lastMessage);
-    }
 
     messagesDiv.appendChild(messageElem);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
+
 
 
 
