@@ -218,6 +218,18 @@ displayMessage = function(message, senderName, isMyMessage) {
         updateTitleCount();
     }
 };
+
+// Listen for messages on the chat channel
+pubnub.addListener({
+    message: function(event) {
+        // Check if the message is from another user before displaying
+        if (event.publisher !== pubnub.getUUID()) {
+            displayMessage(event.message.text, event.message.senderName || 'Someone', false);
+            // Save received messages to local storage
+            saveChatToLocalStorage(event.message.text, event.message.senderName || 'Someone', false);
+        }
+    }
+});
 </script>
 </body>
 </html>
