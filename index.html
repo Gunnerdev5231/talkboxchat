@@ -3,129 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chat App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f7f7f7;
-        }
-        #chat {
-            display: flex;
-            flex-direction: column;
-            height: 90vh;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            background: #fff;
-        }
-        #messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #e5e5e5;
-        }
-        #input {
-            display: flex;
-            padding: 10px;
-        }
-        #input input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-right: 10px;
-        }
-        #input button {
-            padding: 10px;
-            background-color: #333;
-            color: white;
-            border: none;
-        }
-        .message {
-            padding: 10px;
-            background: #fff;
-            margin: 5px;
-            border-radius: 5px;
-        }
-    </style>
+    <title>Simple Chat App with Firebase Authentication</title>
 </head>
 <body>
 
-<div id="chat">
-    <div id="messages"></div>
-    <div id="input">
-        <input type="text" id="messageBox" placeholder="Type your message...">
-        <button onclick="publishMessage()">Send</button>
+    <div id="userAuth">
+        <input type="email" id="emailInput" placeholder="Email">
+        <input type="password" id="passwordInput" placeholder="Password">
+        <button onclick="register()">Register</button>
+        <button onclick="login()">Login</button>
+        <button onclick="logout()" style="display:none;" id="logoutBtn">Logout</button>
     </div>
-</div>
 
-<script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
-<script>
-    // Function to generate a UUID
-    function generateUUID() {
-        return crypto.randomUUID();
-    }
+    <div id="chat" style="display:none;">
+        <div id="messages"></div>
+        <input type="text" id="messageInput" placeholder="Type your message here...">
+        <button id="sendBtn">Send</button>
+    </div>
 
-    // Get or generate a UUID
-    let uuid = localStorage.getItem('uuid');
-    if (!uuid) {
-        uuid = generateUUID();
-        localStorage.setItem('uuid', uuid);
-    }
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
 
-    // Initialize PubNub
-    const pubnub = new PubNub({
-        publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
-        subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
-        uuid: uuid
-    });
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
 
-    // Subscribe to the chat channel
-    pubnub.subscribe({
-        channels: ['chat_channel'],
-        withPresence: true
-    });
+    <script>
+      // TODO: Replace the following with your app's Firebase project configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyA1q2CABQm0DWVAMp_yCyiizt0tvIjHbAc",
+        authDomain: "talkboxchat-20646.firebaseapp.com",
+        projectId: "talkboxchat-20646",
+        storageBucket: "talkboxchat-20646.appspot.com",
+        messagingSenderId: "955786253919",
+        appId: "1:955786253919:web:de275445450e7092b9edea",
+        measurementId: "G-5TZC4YEY69"
+      };
 
-    // Listen for messages on the chat channel
-    pubnub.addListener({
-        message: function(event) {
-            displayMessage(event.message.text, event.publisher);
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      // Reference to the auth service
+      const auth = firebase.auth();
+
+      function register() {
+        const email = document.getElementById('emailInput').value;
+        const password = document.getElementById('passwordInput').value;
+
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            console.log('User created and signed in!');
+          })
+          .catch((error) => {
+            console.error('Error signing up:', error.message);
+          });
+      }
+
+      function login() {
+        const email = document.getElementById('emailInput').value;
+        const password = document.getElementById('passwordInput').value;
+
+        auth.signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            console.log('User signed in!');
+          })
+          .catch((error) => {
+            console.error('Error signing in:', error.message);
+          });
+      }
+
+      function logout() {
+        auth.signOut().then(() => {
+          console.log('User signed out!');
+        });
+      }
+
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // User is signed in, show the chat UI
+          document.getElementById('chat').style.display = 'block';
+          document.getElementById('userAuth').style.display = 'none';
+        } else {
+          // User is signed out, show the login/register UI
+          document.getElementById('chat').style.display = 'none';
+          document.getElementById('userAuth').style.display = 'block';
         }
-    });
-
-    // Function to publish messages
-    function publishMessage() {
-        const messageBox = document.getElementById('messageBox');
-        const messageContent = messageBox.value.trim();
-
-        if (messageContent) {
-            pubnub.publish({
-                channel: 'chat_channel',
-                message: { text: messageContent },
-                function(status, response) {
-                    if (status.error) {
-                        // Handle error here
-                        console.log(status);
-                    } else {
-                        console.log("Message Published w/ timetoken", response.timetoken);
-                    }
-                }
-            });
-            messageBox.value = '';
-        }
-    }
-
-    // Function to display messages
-    function displayMessage(message, senderUuid) {
-        const messagesDiv = document.getElementById('messages');
-        const messageElem = document.createElement('div');
-        messageElem.classList.add('message');
-        messageElem.textContent = (senderUuid === uuid ? 'You: ' : `User ${senderUuid.substring(0, 8)}: `) + message;
-        messagesDiv.appendChild(messageElem);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-</script>
-
+      });
+    </script>
 </body>
 </html>
+
