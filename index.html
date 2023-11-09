@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chat Application</title>
+    <title>Simple Chat Application with Image Support</title>
     <style>
+        /* Add your CSS here */
         .container {
             width: 100%;
             max-width: 320px;
@@ -34,8 +35,10 @@
         #input {
             display: flex;
             padding: 10px;
+            background: #fff;
+            border-top: 1px solid #ccc;
         }
-        #input input {
+        #input input[type="text"] {
             flex-grow: 1;
             padding: 10px;
             border: 1px solid #ccc;
@@ -49,17 +52,25 @@
         }
         .message {
             padding: 10px;
+            background: #fff;
             margin: 5px;
             border-radius: 5px;
-            max-width: 70%;
+            border: 1px solid #ddd;
         }
         .my-message {
-            background: #dcf8c6;
             align-self: flex-end;
+            background: #dcf8c6;
         }
         .other-message {
-            background: #fff;
             align-self: flex-start;
+            background: #e5e5e5;
+        }
+        .message img {
+            display: block;
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -69,7 +80,9 @@
     <div id="messages"></div>
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
+        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="sendImage()">
         <button onclick="publishMessage()">Send</button>
+        <button onclick="document.getElementById('imageInput').click()">Send Image</button>
     </div>
 </div>
 
@@ -85,17 +98,6 @@
     if (!uuid) {
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
-    }
-
-    // Ask for the user's name
-    let userName = localStorage.getItem('userName');
-    if (!userName) {
-        userName = prompt('Please enter your name:', 'Guest');
-        if (userName) {
-            localStorage.setItem('userName', userName);
-        } else {
-            userName = 'Guest'; // Default name if none is provided
-        }
     }
 
     // Initialize PubNub
@@ -114,11 +116,11 @@
     // Listen for messages on the chat channel
     pubnub.addListener({
         message: function(event) {
-            displayMessage(event.message.text, event.message.senderName || 'Someone', event.publisher);
+            displayMessage(event.message, event.publisher);
         }
     });
 
-    // Function to publish messages
+    // Function to publish text messages
     function publishMessage() {
         const messageBox = document.getElementById('messageBox');
         const messageContent = messageBox.value.trim();
@@ -126,7 +128,7 @@
         if (messageContent) {
             pubnub.publish({
                 channel: 'chat_channel',
-                message: { text: messageContent, senderName: userName }
+                message: { text: messageContent }
             }, function(status, response) {
                 if (status.error) {
                     // Handle error here
@@ -139,18 +141,58 @@
         }
     }
 
+    // Function to handle image sending
+    function sendImage() {
+        const fileInput = document.getElementById('imageInput');
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                publishImageMessage(imageUrl);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Function to publish image messages
+    function publishImageMessage(imageUrl) {
+        // Here you would normally upload the image and get an URL in return
+        // For this example, we will use the base64 data URL directly
+        pubnub.publish({
+            channel: 'chat_channel',
+            message: { image: imageUrl }
+        }, function(status, response) {
+            if (status.error) {
+                // Handle error here
+                console.log(status);
+            } else {
+                console.log("Image Published w/ timetoken", response.timetoken);
+            }
+        });
+    }
+
     // Function to display messages
-    function displayMessage(message, senderName, publisherUuid) {
+    function displayMessage(message, publisherUuid) {
         const messagesDiv = document.getElementById('messages');
         const messageElem = document.createElement('div');
         messageElem.classList.add('message');
+
+        if ('text' in message) {
+            const textNode = document.createTextNode(message.text);
+            messageElem.appendChild(textNode);
+        } else if ('image' in message) {
+            const imageElem = new Image();
+            imageElem.src = message.image;
+            messageElem.appendChild(imageElem);
+        }
+
         if (publisherUuid === uuid) {
             messageElem.classList.add('my-message');
-            messageElem.textContent = `You: ${message}`;
         } else {
             messageElem.classList.add('other-message');
-            messageElem.textContent = `${senderName}: ${message}`;
         }
+
         messagesDiv.appendChild(messageElem);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
