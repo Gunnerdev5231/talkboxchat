@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local Chat Application with Session History</title>
     <style>
-         body {
+        /* CSS styles */
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -75,12 +76,11 @@
 </div>
 
 <script>
-    // Set up a new broadcast channel
+    // JavaScript for local broadcast chat
     const channel = new BroadcastChannel('chat_channel');
     let userName = sessionStorage.getItem('userName') || prompt('What is your name?') || 'Anonymous';
     sessionStorage.setItem('userName', userName);
 
-    // Load the chat history from session storage on page load
     window.onload = function() {
         const storedMessages = sessionStorage.getItem('chat_messages');
         if (storedMessages) {
@@ -88,7 +88,6 @@
         }
     };
 
-    // Post messages to the broadcast channel
     function sendMessage() {
         const messageBox = document.getElementById('message-box');
         const message = messageBox.value;
@@ -99,7 +98,6 @@
             timestamp: new Date().toLocaleTimeString()
         };
 
-        // Save the message to session storage
         saveMessage(userName, messageData);
         
         channel.postMessage({ sender: userName, messageData });
@@ -107,14 +105,12 @@
         displayMessage(userName, messageData);
     }
 
-    // Save message to session storage
     function saveMessage(sender, messageData) {
         const currentMessages = JSON.parse(sessionStorage.getItem('chat_messages')) || [];
         currentMessages.push({ sender, messageData });
         sessionStorage.setItem('chat_messages', JSON.stringify(currentMessages));
     }
 
-    // Listen for messages from the broadcast channel
     channel.onmessage = function (e) {
         saveMessage(e.data.sender, e.data.messageData);
         displayMessage(e.data.sender, e.data.messageData);
@@ -129,5 +125,17 @@
     }
 </script>
 
-</body>
-</html>
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/654c2185a84dd54dc48a0f08/1heom5sgb';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of
+
