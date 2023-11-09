@@ -143,14 +143,18 @@
         localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
     // Function to load chat from local storage
-    function loadChatFromLocalStorage() {
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-        const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = '';  // Clear existing messages from the display
-        chatHistory.forEach(chat => {
-            displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
-        });
+function loadChatFromLocalStorage() {
+    let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+    const messagesDiv = document.getElementById('messages');
+    
+    // Clear existing messages from the display
+    messagesDiv.innerHTML = '';
+    
+    chatHistory.forEach(chat => {
+        displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
+    });
     }
+
     // Update the displayMessage function to save messages
     function displayMessage(message, senderName, publisherUuid) {
         const messagesDiv = document.getElementById('messages');
