@@ -82,8 +82,6 @@
     if (!uuid) {
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
-        // Clear chat history when a new UUID is generated
-        localStorage.removeItem('chatHistory');
     }
     // Ask for the user's name
     let userName = localStorage.getItem('userName');
@@ -106,10 +104,17 @@
         channels: ['chat_channel'],
         withPresence: true
     });
+    // Store a set of unique message IDs to prevent duplicates
+    let messageIds = new Set();
+    
     // Listen for messages on the chat channel
     pubnub.addListener({
         message: function(event) {
-            displayMessage(event.message.text, event.message.senderName || 'Someone', event.publisher);
+            const messageId = event.message.senderUuid + event.message.timetoken;
+            if (!messageIds.has(messageId)) {
+                displayMessage(event.message.text, event.message.senderName || 'Someone', event.publisher);
+                messageIds.add(messageId);
+            }
         }
     });
     // Function to publish messages
