@@ -149,6 +149,8 @@ function saveChatToLocalStorage(message, senderName, isMyMessage) {
 // Function to load chat from local storage
 function loadChatFromLocalStorage() {
   let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+  const messagesDiv = document.getElementById('messages');
+  messagesDiv.innerHTML = '';  // Clear existing messages from the display
   chatHistory.forEach(chat => {
     displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
   });
