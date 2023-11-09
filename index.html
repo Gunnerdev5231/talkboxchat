@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Chat Application with Session History</title>
+    <title>Simple Chat App</title>
     <style>
-        /* CSS styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -15,8 +14,8 @@
         #chat {
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            max-width: 800px;
+            height: 90vh;
+            max-width: 600px;
             margin: auto;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             background: #fff;
@@ -30,38 +29,24 @@
         #input {
             display: flex;
             padding: 10px;
-            box-sizing: border-box;
-            border-top: 1px solid #ccc;
         }
         #input input {
             flex-grow: 1;
             padding: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
             margin-right: 10px;
         }
         #input button {
-            padding: 10px 20px;
-            background-color: #5cb85c;
+            padding: 10px;
+            background-color: #333;
             color: white;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #input button:hover {
-            background-color: #4cae4c;
         }
         .message {
-            background: #fff;
             padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        .message-metadata {
-            margin-bottom: 5px;
-            color: #666;
-            font-size: 0.85em;
+            background: #fff;
+            margin: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -70,72 +55,77 @@
 <div id="chat">
     <div id="messages"></div>
     <div id="input">
-        <input type="text" id="message-box" placeholder="Type your message here..." onkeydown="if(event.keyCode==13) sendMessage()">
-        <button onclick="sendMessage()">Send</button>
+        <input type="text" id="messageBox" placeholder="Type your message...">
+        <button onclick="publishMessage()">Send</button>
     </div>
 </div>
 
+<script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
 <script>
-    // JavaScript for local broadcast chat
-    const channel = new BroadcastChannel('chat_channel');
-    let userName = sessionStorage.getItem('userName') || prompt('What is your name?') || 'Anonymous';
-    sessionStorage.setItem('userName', userName);
+    // Function to generate a UUID
+    function generateUUID() {
+        return crypto.randomUUID();
+    }
 
-    window.onload = function() {
-        const storedMessages = sessionStorage.getItem('chat_messages');
-        if (storedMessages) {
-            JSON.parse(storedMessages).forEach(data => displayMessage(data.sender, data.messageData));
+    // Get or generate a UUID
+    let uuid = localStorage.getItem('uuid');
+    if (!uuid) {
+        uuid = generateUUID();
+        localStorage.setItem('uuid', uuid);
+    }
+
+    // Initialize PubNub
+    const pubnub = new PubNub({
+        publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
+        subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
+        uuid: uuid
+    });
+
+    // Subscribe to the chat channel
+    pubnub.subscribe({
+        channels: ['chat_channel'],
+        withPresence: true
+    });
+
+    // Listen for messages on the chat channel
+    pubnub.addListener({
+        message: function(event) {
+            displayMessage(event.message.text, event.publisher);
         }
-    };
+    });
 
-    function sendMessage() {
-        const messageBox = document.getElementById('message-box');
-        const message = messageBox.value;
-        if (message.trim() === '') return;
+    // Function to publish messages
+    function publishMessage() {
+        const messageBox = document.getElementById('messageBox');
+        const messageContent = messageBox.value.trim();
 
-        const messageData = {
-            content: message,
-            timestamp: new Date().toLocaleTimeString()
-        };
-
-        saveMessage(userName, messageData);
-        
-        channel.postMessage({ sender: userName, messageData });
-        messageBox.value = '';
-        displayMessage(userName, messageData);
+        if (messageContent) {
+            pubnub.publish({
+                channel: 'chat_channel',
+                message: { text: messageContent },
+                function(status, response) {
+                    if (status.error) {
+                        // Handle error here
+                        console.log(status);
+                    } else {
+                        console.log("Message Published w/ timetoken", response.timetoken);
+                    }
+                }
+            });
+            messageBox.value = '';
+        }
     }
 
-    function saveMessage(sender, messageData) {
-        const currentMessages = JSON.parse(sessionStorage.getItem('chat_messages')) || [];
-        currentMessages.push({ sender, messageData });
-        sessionStorage.setItem('chat_messages', JSON.stringify(currentMessages));
-    }
-
-    channel.onmessage = function (e) {
-        saveMessage(e.data.sender, e.data.messageData);
-        displayMessage(e.data.sender, e.data.messageData);
-    };
-
-    function displayMessage(sender, messageData) {
+    // Function to display messages
+    function displayMessage(message, senderUuid) {
         const messagesDiv = document.getElementById('messages');
-        const messageElement = document.createElement('div');
-        messageElement.innerHTML = `<strong>${sender}</strong>: ${messageData.content} <em>${messageData.timestamp}</em>`;
-        messagesDiv.appendChild(messageElement);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
+        const messageElem = document.createElement('div');
+        messageElem.classList.add('message');
+        messageElem.textContent = (senderUuid === uuid ? 'You: ' : `User ${senderUuid.substring(0, 8)}: `) + message;
+        messagesDiv.appendChild(messageElem);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 </script>
 
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/654c2185a84dd54dc48a0f08/1heom5sgb';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of
-
+</body>
+</html>
