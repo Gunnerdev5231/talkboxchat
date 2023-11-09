@@ -79,6 +79,17 @@
         localStorage.setItem('uuid', uuid);
     }
 
+    // Ask for the user's name
+    let userName = localStorage.getItem('userName');
+    if (!userName) {
+        userName = prompt('Please enter your name:', 'Guest');
+        if (userName) {
+            localStorage.setItem('userName', userName);
+        } else {
+            userName = 'Guest'; // Default name if none is provided
+        }
+    }
+
     // Initialize PubNub
     const pubnub = new PubNub({
         publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
@@ -95,7 +106,7 @@
     // Listen for messages on the chat channel
     pubnub.addListener({
         message: function(event) {
-            displayMessage(event.message.text, event.publisher);
+            displayMessage(event.message.text, event.message.senderName || 'Someone');
         }
     });
 
@@ -107,7 +118,7 @@
         if (messageContent) {
             pubnub.publish({
                 channel: 'chat_channel',
-                message: { text: messageContent }
+                message: { text: messageContent, senderName: userName }
             }, function(status, response) {
                 if (status.error) {
                     // Handle error here
@@ -121,11 +132,11 @@
     }
 
     // Function to display messages
-    function displayMessage(message, senderUuid) {
+    function displayMessage(message, senderName) {
         const messagesDiv = document.getElementById('messages');
         const messageElem = document.createElement('div');
         messageElem.classList.add('message');
-        messageElem.textContent = (senderUuid === uuid ? 'You: ' : `User ${senderUuid.substring(0, 8)}: `) + message;
+        messageElem.textContent = `${senderName}: ${message}`;
         messagesDiv.appendChild(messageElem);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
