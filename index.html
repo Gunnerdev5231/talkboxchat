@@ -93,6 +93,12 @@
             userName = 'Guest'; // Default name if none is provided
         }
     }
+    // Check if chat history has been cleared already
+    let chatHistoryCleared = localStorage.getItem('chatHistoryCleared');
+    if (!chatHistoryCleared) {
+        localStorage.removeItem('chatHistory'); // Clear chat history
+        localStorage.setItem('chatHistoryCleared', 'true'); // Set flag
+    }
     // Initialize PubNub
     const pubnub = new PubNub({
         publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
