@@ -82,6 +82,8 @@
     if (!uuid) {
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
+        // Clear chat history when a new UUID is generated
+        localStorage.removeItem('chatHistory');
     }
     // Ask for the user's name
     let userName = localStorage.getItem('userName');
@@ -143,8 +145,6 @@
         chatHistory.forEach(chat => {
             displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
         });
-        // Clear the chat history flag after loading
-        localStorage.removeItem('chatHistoryCleared');
     }
     // Update the displayMessage function to save messages
     function displayMessage(message, senderName, publisherUuid) {
