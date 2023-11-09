@@ -73,14 +73,14 @@
     function generateUUID() {
         return crypto.randomUUID();
     }
-
+    
     // Get or generate a UUID
     let uuid = localStorage.getItem('uuid');
     if (!uuid) {
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
     }
-
+    
     // Ask for the user's name
     let userName = localStorage.getItem('userName');
     if (!userName) {
@@ -91,73 +91,22 @@
             userName = 'Guest'; // Default name if none is provided
         }
     }
-
+    
     // Initialize PubNub
     const pubnub = new PubNub({
         publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
         subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
         uuid: uuid
     });
-
-    // Function to save chat to local storage
-    function saveChatToLocalStorage(message, senderName, isMyMessage) {
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-        chatHistory.push({ message, senderName, isMyMessage, timestamp: new Date().toISOString() });
-        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-    }
-
-    // Function to load chat from local storage
-    function loadChatFromLocalStorage() {
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+    
+    // Function to display messages
+    function displayMessage(message, senderName) {
         const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = '';  // Clear existing messages from the display
-        chatHistory.forEach(chat => {
-            displayMessage(chat.message, chat.senderName, chat.isMyMessage);
-        });
+        const messageElem = document.createElement('div');
+        messageElem.textContent = `${senderName}: ${message}`;
+        messagesDiv.appendChild(messageElem);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-
-    // Call loadChatFromLocalStorage when the page loads
-    window.onload = function() {
-        loadChatFromLocalStorage();
-    }
-
-    
-// Function to display messages
-function displayMessage(message, senderName, isMyMessage) {
-    const messagesDiv = document.getElementById('messages');
-    const messageElem = document.createElement('div');
-    messageElem.classList.add('message');
-    
-    if (isMyMessage) {
-        messageElem.classList.add('my-message');
-        messageElem.textContent = `You: ${message}`;
-        
-        // Remove any previous "You" message
-        const previousMyMessage = messagesDiv.querySelector('.my-message');
-        if (previousMyMessage) {
-            messagesDiv.removeChild(previousMyMessage);
-        }
-    } else {
-        messageElem.classList.add('other-message');
-        if (senderName === userName) {
-            messageElem.textContent = `You: ${message}`;
-        } else {
-            messageElem.textContent = `${senderName}: ${message}`;
-        }
-    }
-
-    messagesDiv.appendChild(messageElem);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-
-    messagesDiv.appendChild(messageElem);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-
-
-
 
     // Function to publish messages
     function publishMessage() {
@@ -173,13 +122,9 @@ function displayMessage(message, senderName, isMyMessage) {
                     console.log(status);
                 } else {
                     console.log("Message Published w/ timetoken", response.timetoken);
-                    // Display the sent message in the chat
-                    displayMessage(messageContent, userName, true);
-                    // Save the sent message to local storage
-                    saveChatToLocalStorage(messageContent, userName, true);
-                    messageBox.value = '';
                 }
             });
+            messageBox.value = '';
         }
     }
 
@@ -192,9 +137,7 @@ function displayMessage(message, senderName, isMyMessage) {
     // Listen for messages on the chat channel
     pubnub.addListener({
         message: function(event) {
-            displayMessage(event.message.text, event.message.senderName || 'Someone', false);
-            // Save received messages to local storage
-            saveChatToLocalStorage(event.message.text, event.message.senderName || 'Someone', false);
+            displayMessage(event.message.text, event.message.senderName || 'Someone');
         }
     });
 </script>
