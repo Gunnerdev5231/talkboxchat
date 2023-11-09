@@ -75,6 +75,7 @@
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()">Send</button>
+        <button onclick="clearChatHistory()" style="margin-left: 10px;">Clear Chat</button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -209,6 +210,11 @@ displayMessage = function(message, senderName, isMyMessage) {
         updateTitleCount();
     }
 };
+    
+function clearChatHistory() {
+    localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
+    loadChatFromLocalStorage(); // Reloads the chat to update the UI
+}
 </script>
 </body>
 </html>
