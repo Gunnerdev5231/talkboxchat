@@ -113,22 +113,20 @@
         const messagesDiv = document.getElementById('messages');
         messagesDiv.innerHTML = '';  // Clear existing messages from the display
         chatHistory.forEach(chat => {
-            displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
+            displayMessage(chat.message, chat.senderName, chat.isMyMessage);
         });
     }
     
-    // Call loadChatFromLocalStorage only when the page initially loads
-    if (!localStorage.getItem('initialLoadComplete')) {
+    // Call loadChatFromLocalStorage when the page loads
+    window.onload = function() {
         loadChatFromLocalStorage();
-        localStorage.setItem('initialLoadComplete', 'true');
     }
     
     // Update the displayMessage function to save messages and display them
-    function displayMessage(message, senderName, publisherUuid) {
+    function displayMessage(message, senderName, isMyMessage) {
         const messagesDiv = document.getElementById('messages');
         const messageElem = document.createElement('div');
         messageElem.classList.add('message');
-        let isMyMessage = publisherUuid === uuid;
         if (isMyMessage) {
             messageElem.classList.add('my-message');
             messageElem.textContent = `You: ${message}`;
@@ -138,8 +136,6 @@
         }
         messagesDiv.appendChild(messageElem);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        // Save the new message to local storage
-        saveChatToLocalStorage(message, senderName, isMyMessage);
     }
 
     // Function to publish messages
@@ -156,9 +152,13 @@
                     console.log(status);
                 } else {
                     console.log("Message Published w/ timetoken", response.timetoken);
+                    // Display the sent message in the chat
+                    displayMessage(messageContent, userName, true);
+                    // Save the sent message to local storage
+                    saveChatToLocalStorage(messageContent, userName, true);
+                    messageBox.value = '';
                 }
             });
-            messageBox.value = '';
         }
     }
 </script>
