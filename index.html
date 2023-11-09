@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Chat Application with Session History</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        #chat {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #e5e5e5;
+        }
+        #input {
+            display: flex;
+            padding: 10px;
+            box-sizing: border-box;
+            border-top: 1px solid #ccc;
+        }
+        #input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        #input button {
+            padding: 10px 20px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #input button:hover {
+            background-color: #4cae4c;
+        }
+        .message {
+            background: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .message-metadata {
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat">
+    <div id="messages"></div>
+    <div id="input">
+        <input type="text" id="message-box" placeholder="Type your message here..." onkeydown="if(event.keyCode==13) sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    // Set up a new broadcast channel
+    const channel = new BroadcastChannel('chat_channel');
+    let userName = sessionStorage.getItem('userName') || prompt('What is your name?') || 'Anonymous';
+    sessionStorage.setItem('userName', userName);
+
+    // Load the chat history from session storage on page load
+    window.onload = function() {
+        const storedMessages = sessionStorage.getItem('chat_messages');
+        if (storedMessages) {
+            JSON.parse(storedMessages).forEach(data => displayMessage(data.sender, data.messageData));
+        }
+    };
+
+    // Post messages to the broadcast channel
+    function sendMessage() {
+        const messageBox = document.getElementById('message-box');
+        const message = messageBox.value;
+        if (message.trim() === '') return;
+
+        const messageData = {
+            content: message,
+            timestamp: new Date().toLocaleTimeString()
+        };
+
+        // Save the message to session storage
+        saveMessage(userName, messageData);
+        
+        channel.postMessage({ sender: userName, messageData });
+        messageBox.value = '';
+        displayMessage(userName, messageData);
+    }
+
+    // Save message to session storage
+    function saveMessage(sender, messageData) {
+        const currentMessages = JSON.parse(sessionStorage.getItem('chat_messages')) || [];
+        currentMessages.push({ sender, messageData });
+        sessionStorage.setItem('chat_messages', JSON.stringify(currentMessages));
+    }
+
+    // Listen for messages from the broadcast channel
+    channel.onmessage = function (e) {
+        saveMessage(e.data.sender, e.data.messageData);
+        displayMessage(e.data.sender, e.data.messageData);
+    };
+
+    function displayMessage(sender, messageData) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${sender}</strong>: ${messageData.content} <em>${messageData.timestamp}</em>`;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the latest message
+    }
+</script>
+
+</body>
+</html>
