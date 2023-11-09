@@ -122,21 +122,21 @@
     }
 
     // Function to display messages
-function displayMessage(message, senderName, isMyMessage) {
-    const messagesDiv = document.getElementById('messages');
-    const messageElem = document.createElement('div');
-    messageElem.classList.add('message');
-    if (isMyMessage) {
-        messageElem.classList.add('my-message');
-        messageElem.textContent = `You: ${message}`;
-    } else {
-        messageElem.classList.add('other-message');
-        if (senderName === userName) {
+    function displayMessage(message, senderName, isMyMessage) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElem = document.createElement('div');
+        messageElem.classList.add('message');
+        if (isMyMessage) {
+            messageElem.classList.add('my-message');
             messageElem.textContent = `You: ${message}`;
         } else {
-            messageElem.textContent = `${senderName}: ${message}`;
+            messageElem.classList.add('other-message');
+            if (senderName === userName) {
+                messageElem.textContent = `You: ${message}`;
+            } else {
+                messageElem.textContent = `${senderName}: ${message}`;
+            }
         }
-    }
     messagesDiv.appendChild(messageElem);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
