@@ -164,8 +164,6 @@
     }
     // Call loadChatFromLocalStorage when the page loads
     window.onload = function() {
-        // Clear existing chat history from local storage
-        localStorage.removeItem('chatHistory');
         loadChatFromLocalStorage();
     };
 </script>
