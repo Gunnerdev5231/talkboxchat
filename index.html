@@ -172,6 +172,21 @@
             }
         }
     });
+    
+    document.getElementById('messageBox').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            publishMessage();
+        }
+    });
+
+    pubnub.addListener({
+        message: function(event) {
+            if(event.publisher !== uuid) {
+                displayMessage(event.message.text, event.message.senderName, false);
+                saveChatToLocalStorage(event.message.text, event.message.senderName, false);
+            }
+        }
+    });
 </script>
 </body>
 </html>
