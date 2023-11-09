@@ -93,19 +93,22 @@
     const app = firebase.initializeApp(firebaseConfig);
     document.addEventListener('DOMContentLoaded', function() {
         const auth = firebase.auth();
+        
         function register() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            auth.createUserWithEmailAndPassword(email, password)
+            firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     // Registered
-                    const user = userCredential.user;
-                    console.log('Registered', user);
-                    document.getElementById('chat').style.display = 'block';
-                    document.getElementById('auth-container').style.display = 'none';
+                    var user = userCredential.user;
+                    console.log('User created:', user);
                 })
                 .catch((error) => {
-                    console.error('Registration Failed', error);
+                    // Handle Errors here.
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    console.error('Error creating user:', errorCode, errorMessage);
+                    // You can display the error message to the user here.
                 });
         }
 
