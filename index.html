@@ -130,7 +130,7 @@ function displayMessage(message, senderName, isMyMessage) {
     
     // Check if the last message is from the user (You) and remove it
     const lastMessage = messagesDiv.lastElementChild;
-    if (lastMessage && lastMessage.classList.contains('my-message')) {
+    if (isMyMessage && lastMessage && lastMessage.classList.contains('my-message')) {
         messagesDiv.removeChild(lastMessage);
     }
 
@@ -149,6 +149,7 @@ function displayMessage(message, senderName, isMyMessage) {
     messagesDiv.appendChild(messageElem);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
+
 
 
 
