@@ -67,6 +67,14 @@
         background: #A060FF;
         align-self: flex-start;
     }
+
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24
+    }
     </style>
 </head>
 <body>
@@ -75,7 +83,9 @@
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()">Send</button>
-        <button onclick="clearChatHistory()" style="margin-left: 10px;">Clear Chat</button>
+        <button onclick="clearChatHistory()" style="margin-left: 10px;"><span class="material-symbols-outlined">
+mop
+</span></button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
