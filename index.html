@@ -78,11 +78,12 @@
 
 <script type="module">
      // Import the functions you need from the SDKs you need
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
   // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
-
+  const auth = getAuth(app);
   // Your web app's Firebase configuration
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
@@ -100,14 +101,13 @@
   const analytics = getAnalytics(app);
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
     document.addEventListener('DOMContentLoaded', function() {
         const auth = firebase.auth();
         
         function register() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            firebase.auth().createUserWithEmailAndPassword(email, password)
+            createUserWithEmailAndPassword(auth, email, password){
                 .then((userCredential) => {
                     // Registered
                     var user = userCredential.user;
