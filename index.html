@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Chat Application</title>
     <style>
-        /* Add your CSS here */
         .container {
             width: 100%;
             max-width: 320px;
@@ -50,17 +49,17 @@
         }
         .message {
             padding: 10px;
-            background: #fff;
             margin: 5px;
             border-radius: 5px;
+            max-width: 70%;
         }
         .my-message {
             background: #dcf8c6;
             align-self: flex-end;
         }
-        #clear-history-container {
-            text-align: center;
-            padding: 10px;
+        .other-message {
+            background: #fff;
+            align-self: flex-start;
         }
     </style>
 </head>
@@ -71,106 +70,102 @@
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()">Send</button>
     </div>
-    <div id="clear-history-container">
-        <button onclick="clearChatHistory()">Clear History</button>
-    </div>
 </div>
-
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
 <script>
     // Function to generate a UUID
     function generateUUID() {
         return crypto.randomUUID();
     }
-
     // Get or generate a UUID
     let uuid = localStorage.getItem('uuid');
     if (!uuid) {
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
     }
-
+    // Ask for the user's name
+    let userName = localStorage.getItem('userName');
+    if (!userName) {
+        userName = prompt('Please enter your name:', 'Guest');
+        if (userName) {
+            localStorage.setItem('userName', userName);
+        } else {
+            userName = 'Guest'; // Default name if none is provided
+        }
+    }
     // Initialize PubNub
     const pubnub = new PubNub({
         publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
         subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
         uuid: uuid
     });
-
     // Subscribe to the chat channel
     pubnub.subscribe({
         channels: ['chat_channel'],
         withPresence: true
     });
-
     // Listen for messages on the chat channel
     pubnub.addListener({
         message: function(event) {
-            displayMessage(event.message.text, event.publisher);
+            displayMessage(event.message.text, event.message.senderName || 'Someone', event.publisher);
         }
     });
-
     // Function to publish messages
     function publishMessage() {
         const messageBox = document.getElementById('messageBox');
         const messageContent = messageBox.value.trim();
-
         if (messageContent) {
             pubnub.publish({
                 channel: 'chat_channel',
-                message: { text: messageContent }
+                message: { text: messageContent, senderName: userName }
+            }, function(status, response) {
+                if (status.error) {
+                    // Handle error here
+                    console.log(status);
+                } else {
+                    console.log("Message Published w/ timetoken", response.timetoken);
+                }
             });
             messageBox.value = '';
         }
     }
-
-    // Function to display messages
-    function displayMessage(message, senderUuid) {
-        const messagesDiv = document.getElementById('messages');
-        const messageElem = document.createElement('div');
-        messageElem.classList.add('message');
-
-        // If the message is from the current user, add a special class
-        if (senderUuid === uuid) {
-            messageElem.classList.add('my-message');
-            messageElem.textContent = `You: ${message}`;
-        } else {
-            messageElem.textContent = `User ${senderUuid.substring(0, 8)}: ${message}`;
-        }
-
-        messagesDiv.appendChild(messageElem);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-        // Save the message to local storage
-        saveChatToLocalStorage({ text: message, sender: senderUuid });
-    }
-
     // Function to save chat to local storage
-    function saveChatToLocalStorage(message) {
-        let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-        chatHistory.push(message);
-        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
-    }
-
-    // Function to load chat from local storage
-    function loadChatFromLocalStorage() {
-        const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
-        chatHistory.forEach((message) => {
-            displayMessage(message.text, message.sender);
-        });
-    }
-
-    // Function to clear the chat history from local storage and the chat window
-    function clearChatHistory() {
-        localStorage.removeItem('chatHistory');
-        const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = '';
-    }
-
-    // Load chat history when the page loads
-    window.onload = loadChatFromLocalStorage;
-
-    // ... (rest of your JavaScript code)
+function saveChatToLocalStorage(message, senderName, isMyMessage) {
+  let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+  chatHistory.push({ message, senderName, isMyMessage, timestamp: new Date().toISOString() });
+  localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+// Function to load chat from local storage
+function loadChatFromLocalStorage() {
+  let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+  const messagesDiv = document.getElementById('messages');
+  messagesDiv.innerHTML = '';  // Clear existing messages from the display
+  chatHistory.forEach(chat => {
+    displayMessage(chat.message, chat.senderName, chat.isMyMessage ? uuid : 'other');
+  });
+}
+// Update the displayMessage function to save messages
+function displayMessage(message, senderName, publisherUuid) {
+  const messagesDiv = document.getElementById('messages');
+  const messageElem = document.createElement('div');
+  messageElem.classList.add('message');
+  let isMyMessage = publisherUuid === uuid;
+  if (isMyMessage) {
+    messageElem.classList.add('my-message');
+    messageElem.textContent = `You: ${message}`;
+  } else {
+    messageElem.classList.add('other-message');
+    messageElem.textContent = `${senderName}: ${message}`;
+  }
+  messagesDiv.appendChild(messageElem);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  // Save the message to local storage
+  saveChatToLocalStorage(message, senderName, isMyMessage);
+}
+// Call loadChatFromLocalStorage when the page loads
+window.onload = function() {
+  loadChatFromLocalStorage();
+};
 </script>
 </body>
 </html>
