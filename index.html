@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talkbox</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
         font-family: Arial, sans-serif;
@@ -68,12 +69,10 @@
         align-self: flex-start;
     }
 
-    .material-symbols-outlined {
-      font-variation-settings:
-      'FILL' 0,
-      'wght' 400,
-      'GRAD' 0,
-      'opsz' 24
+    .material-icons {
+    /* Example: Increase icon size and change color */
+    font-size: 24px;
+    color: black;
     }
     </style>
 </head>
@@ -83,9 +82,7 @@
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()">Send</button>
-        <button onclick="clearChatHistory()" style="margin-left: 10px;"><span class="material-symbols-outlined">
-mop
-</span></button>
+        <button onclick="clearChatHistory()" style="margin-left: 10px;"><i class="material-icons">mop</i>>send</button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
