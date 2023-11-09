@@ -163,15 +163,6 @@
         channels: ['chat_channel'],
         withPresence: true
     });
-
-    pubnub.addListener({
-        message: function(event) {
-            if(event.publisher !== uuid) {
-                displayMessage(event.message.text, event.message.senderName, false);
-                saveChatToLocalStorage(event.message.text, event.message.senderName, false);
-            }
-        }
-    });
     
     document.getElementById('messageBox').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
@@ -218,18 +209,6 @@ displayMessage = function(message, senderName, isMyMessage) {
         updateTitleCount();
     }
 };
-
-// Listen for messages on the chat channel
-pubnub.addListener({
-    message: function(event) {
-        // Check if the message is from another user before displaying
-        if (event.publisher !== pubnub.getUUID()) {
-            displayMessage(event.message.text, event.message.senderName || 'Someone', false);
-            // Save received messages to local storage
-            saveChatToLocalStorage(event.message.text, event.message.senderName || 'Someone', false);
-        }
-    }
-});
 </script>
 </body>
 </html>
