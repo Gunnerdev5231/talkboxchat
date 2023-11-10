@@ -56,16 +56,6 @@
             cursor: pointer;
         }
 
-        #clear-button {
-            padding: 10px;
-            background-color: #A060FF;
-            color: #000;
-            border: none;
-            border-radius: 5px;
-            margin-left: 10px;
-            cursor: pointer;
-        }
-
         .message {
             padding: 10px;
             margin: 5px;
@@ -97,7 +87,7 @@
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()"><i class="material-icons">send</i></button>
-        <button id="clear-button" onclick="clearChatHistory()"><i class="material-icons">mop</i></button>
+        <button onclick="clearChatHistory()"><i class="material-icons">mop</i></button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -192,6 +182,12 @@
                 }
             });
         }
+    }
+
+    function clearChatHistory() {
+    localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML = ''; // Clears the chat messages from the display
     }
 </script>
 </body>
