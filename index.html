@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talkbox</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Simple Chat Application</title>
     <style>
-        body {
+         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -77,66 +76,68 @@
     </style>
 </head>
 <body>
-<div id="roomControls">
-    <input type="text" id="roomCode" placeholder="Enter room code...">
-    <button onclick="joinRoom()">Join Room</button>
-    <button onclick="leaveRoom()">Leave Room</button>
-</div>
 <div id="chat">
     <div id="messages"></div>
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
-        <button onclick="publishMessage()" style="margin-left: 10px;"><i class="material-icons">send</i></button>
-        <button onclick="clearChatHistory()" style="margin-left: 10px;"><i class="material-icons">delete</i></button>
+        <button onclick="publishMessage()">Send</button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
 <script>
+    // Function to generate a UUID
     function generateUUID() {
         return crypto.randomUUID();
     }
-
+    
+    // Get or generate a UUID
     let uuid = localStorage.getItem('uuid');
     if (!uuid) {
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
     }
-
+    
+    // Ask for the user's name
     let userName = localStorage.getItem('userName');
     if (!userName) {
         userName = prompt('Please enter your name:', 'Guest');
         if (userName) {
             localStorage.setItem('userName', userName);
         } else {
-            userName = 'Guest';
+            userName = 'Guest'; // Default name if none is provided
         }
     }
-
+    
+    // Initialize PubNub
     const pubnub = new PubNub({
         publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
         subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
         uuid: uuid
     });
-
+    
+    // Function to save chat to local storage
     function saveChatToLocalStorage(message, senderName, isMyMessage) {
         let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
         chatHistory.push({ message, senderName, isMyMessage, timestamp: new Date().toISOString() });
         localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
-
+    
+    // Function to load chat from local storage
     function loadChatFromLocalStorage() {
         let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
         const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = '';
+        messagesDiv.innerHTML = '';  // Clear existing messages from the display
         chatHistory.forEach(chat => {
             displayMessage(chat.message, chat.senderName, chat.isMyMessage);
         });
     }
-
+    
+    // Call loadChatFromLocalStorage when the page loads
     window.onload = function() {
         loadChatFromLocalStorage();
     }
-
+    
+    // Update the displayMessage function to save messages and display them
     function displayMessage(message, senderName, isMyMessage) {
         const messagesDiv = document.getElementById('messages');
         const messageElem = document.createElement('div');
@@ -152,116 +153,29 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
+    // Function to publish messages
     function publishMessage() {
         const messageBox = document.getElementById('messageBox');
         const messageContent = messageBox.value.trim();
         if (messageContent) {
             pubnub.publish({
                 channel: 'chat_channel',
-                message: { text: messageContent, senderName: userName, uuid: uuid }
+                message: { text: messageContent, senderName: userName }
             }, function(status, response) {
                 if (status.error) {
+                    // Handle error here
                     console.log(status);
                 } else {
                     console.log("Message Published w/ timetoken", response.timetoken);
-                    displayMessage(messageContent, 'You', true); // Display only the user's own messages
+                    // Display the sent message in the chat
+                    displayMessage(messageContent, userName, true);
+                    // Save the sent message to local storage
                     saveChatToLocalStorage(messageContent, userName, true);
                     messageBox.value = '';
                 }
             });
         }
     }
-
-    pubnub.subscribe({
-        channels: ['chat_channel'],
-        withPresence: true
-    });
-
-    document.getElementById('messageBox').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            publishMessage();
-        }
-    });
-    pubnub.addListener({
-        message: function(event) {
-            if(event.publisher !== uuid) {
-                displayMessage(event.message.text, event.message.senderName, false);
-                saveChatToLocalStorage(event.message.text, event.message.senderName, false);
-            }
-        }
-    });
-
-    // Global variable to keep track of the message count
-    let messageCount = 0;
-
-    // Function to update the document title with the unread message count
-    function updateTitleCount() {
-        if (messageCount > 0) {
-            document.title = `(${messageCount}) Talkbox`;
-        } else {
-            document.title = `Talkbox`;
-        }
-    }
-
-    // Event listener for when the tab gains focus
-    window.addEventListener('focus', function() {
-        messageCount = 0;
-        updateTitleCount();
-    });
-
-    // Modify the existing displayMessage function to increment the messageCount when a new message is received
-    const originalDisplayMessage = displayMessage;
-    displayMessage = function(message, senderName, isMyMessage) {
-        // Call the original displayMessage function
-        originalDisplayMessage(message, senderName, isMyMessage);
-
-        // If it's not the user's own message and the window is not focused, increment the message count
-        if (!isMyMessage && !document.hasFocus()) {
-            messageCount++;
-            updateTitleCount();
-        }
-    };
-
-    function clearChatHistory() {
-        localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
-        loadChatFromLocalStorage(); // Reloads the chat to update the UI
-    }
-    let currentRoom = 'mainRoom';
-    // Function to join a room
-function joinRoom() {
-    const roomCode = document.getElementById('roomCode').value.trim();
-    if (roomCode) {
-        // Unsubscribe from the current room
-        pubnub.unsubscribe({
-            channels: [currentRoom],
-        });
-
-        // Subscribe to the new room
-        pubnub.subscribe({
-            channels: [roomCode],
-            withPresence: true,
-        });
-
-        currentRoom = roomCode;
-    }
-}
-
-// Function to leave the current room
-function leaveRoom() {
-    // Unsubscribe from the current room
-    pubnub.unsubscribe({
-        channels: [currentRoom],
-    });
-
-    // Subscribe back to the main room or another default room
-    pubnub.subscribe({
-        channels: ['main_room'], // You can change this to your main room channel
-        withPresence: true,
-    });
-
-    currentRoom = 'main_room'; // Update the current room variable
-}
-
 </script>
 </body>
 </html>
