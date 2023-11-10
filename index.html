@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Chat Application</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,20 +56,30 @@
             cursor: pointer;
         }
 
+        #clear-button {
+            padding: 10px;
+            background-color: #A060FF;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
         .message {
             padding: 10px;
             margin: 5px;
             border-radius: 5px;
             max-width: 70%;
-            background: #A060FF;
-            color: #000;
         }
 
         .my-message {
+            background: #00E4E3;
             align-self: flex-end;
         }
 
         .other-message {
+            background: #A060FF;
             align-self: flex-start;
         }
 
@@ -83,7 +94,8 @@
     <div id="messages"></div>
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
-        <button onclick="publishMessage()">Send</button>
+        <button onclick="publishMessage()"><i class="material-icons">send</i></button>
+        <button id="clear-button" onclick="clearChatHistory()"><i class="material-icons">mop</i></button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
