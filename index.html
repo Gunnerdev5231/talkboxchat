@@ -187,20 +187,19 @@
         <button onclick="openSettings()"><i class="material-icons">settings</i></button>
     </div>
 </div>
-<div id="settings-panel">
-    <div id="settings-panel-content">
-        <h2>Settings</h2>
-        <label for="username">Change Username:</label>
-        <input type="text" id="username" placeholder="Enter your new username">
-        <label for="theme">Choose Theme:</label>
-        <select id="theme">
-            <option value="dark">Dark Mode</option>
-            <option value="light">Light Mode</option>
-        </select>
-        <button onclick="saveSettings()">Save</button>
-        <button onclick="closeSettings()">Close</button>
-    </div>
+<!-- Settings panel -->
+<div id="settings-panel" class="settings-panel">
+    <h2>Settings</h2>
+    <label for="userNameInput">Change Your Name:</label>
+    <input type="text" id="userNameInput" value="${userName}">
+    <label for="themeSelect">Select Theme:</label>
+    <select id="themeSelect">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+    </select>
+    <button onclick="applySettings()">Apply</button>
 </div>
+
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
 <script>
 
@@ -220,6 +219,15 @@
     function saveSettings() {
         const newUsername = document.getElementById('username').value;
         const newTheme = document.getElementById('theme').value;
+
+        // Add an event listener to update the user's name when it's changed in the settings panel
+document.getElementById('userNameInput').addEventListener('change', function() {
+    const newUserName = this.value.trim();
+    if (newUserName) {
+        userName = newUserName;
+        localStorage.setItem('userName', userName); // Update the user's name in local storage
+    }
+});
 
         // Save new preferences in localStorage
         localStorage.setItem('userName', newUsername);
@@ -246,15 +254,17 @@
     }
 
     // Ask for the user's name
-    let userName = localStorage.getItem('userName');
-    if (!userName) {
-        userName = prompt('Please enter your name:', 'Guest');
-        if (userName) {
-            localStorage.setItem('userName', userName);
-        } else {
-            userName = 'Guest'; // Default name if none is provided
-        }
+    // Ask for the user's name
+let userName = localStorage.getItem('userName');
+if (!userName) {
+    userName = prompt('Please enter your name:', 'Guest');
+    if (userName) {
+        localStorage.setItem('userName', userName);
+    } else {
+        userName = 'Guest'; // Default name if none is provided
     }
+}
+
 
     // Initialize PubNub
     const pubnub = new PubNub({
