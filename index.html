@@ -153,6 +153,21 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
+    pubnub.subscribe({
+        channels: ['chat_channel'],
+        withPresence: true
+    });
+    
+    // Listen for incoming messages
+    pubnub.addListener({
+        message: function(event) {
+            if (event.publisher !== uuid) {
+                displayMessage(event.message.text, event.message.senderName, false);
+                saveChatToLocalStorage(event.message.text, event.message.senderName, false);
+            }
+        }
+    });
+
     // Function to publish messages
     function publishMessage() {
         const messageBox = document.getElementById('messageBox');
