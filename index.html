@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talkbox</title> <!-- Updated title to "Talkbox" -->
+    <title>Simple Chat Application</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
@@ -54,7 +54,6 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 5px; /* Added spacing between buttons */
         }
 
         .message {
@@ -86,7 +85,7 @@
 <div id="chat">
     <div id="messages"></div>
     <div id="input">
-        <input type="text" id="messageBox" placeholder="Type your message..." onkeydown="if (event.key === 'Enter') publishMessage()">
+        <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()"><i class="material-icons">send</i></button>
         <button onclick="clearChatHistory()"><i class="material-icons">clear</i></button>
     </div>
@@ -151,11 +150,7 @@
     messageElem.classList.add('message');
     
     const now = new Date();
-    const hours = now.getHours() % 12 || 12; // 12-hour format
-    const minutes = now.getMinutes();
-    const ampm = now.getHours() < 12 ? 'AM' : 'PM';
-    
-    const timeString = `${hours}:${(minutes < 10 ? '0' : '')}${minutes} ${ampm}`;
+    const timeString = `${now.getHours()}:${(now.getMinutes() < 10 ? '0' : '')}${now.getMinutes()}`;
     
     if (isMyMessage) {
         messageElem.classList.add('my-message');
