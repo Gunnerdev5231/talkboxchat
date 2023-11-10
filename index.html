@@ -72,6 +72,17 @@
             margin-left: 5px;
         }
 
+        #scrollToBottom {
+            padding: 10px;
+            background-color: #00E4E3;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+            display: none; /* Initially hidden */
+        }
+
         .message {
             padding: 10px;
             margin: 5px;
@@ -104,6 +115,7 @@
         <input type="text" id="messageBox" placeholder="Type your message..." onkeydown="if (event.key === 'Enter') publishMessage()">
         <button onclick="publishMessage()"><i class="material-icons">send</i></button>
         <button onclick="clearChatHistory()"><i class="material-icons">clear</i></button>
+        <button id="scrollToBottom" onclick="scrollToBottom()"><i class="material-icons">arrow_downward</i></button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -213,6 +225,19 @@
     const messagesDiv = document.getElementById('messages');
     messagesDiv.innerHTML = ''; // Clears the chat messages from the display
     }
+
+    // Function to scroll to the bottom of the chat
+    function scrollToBottom() {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Show the scroll-to-bottom button when there are messages to scroll
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.addEventListener('scroll', () => {
+        const scrollToBottomButton = document.getElementById('scrollToBottom');
+        scrollToBottomButton.style.display = messagesDiv.scrollTop < messagesDiv.scrollHeight - messagesDiv.clientHeight ? 'block' : 'none';
+    });
 </script>
 </body>
 </html>
