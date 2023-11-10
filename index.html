@@ -77,6 +77,11 @@
     </style>
 </head>
 <body>
+<div id="roomControls">
+    <input type="text" id="roomCode" placeholder="Enter room code...">
+    <button onclick="joinRoom()">Join Room</button>
+    <button onclick="leaveRoom()">Leave Room</button>
+</div>
 <div id="chat">
     <div id="messages"></div>
     <div id="input">
@@ -221,6 +226,41 @@
         localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
         loadChatFromLocalStorage(); // Reloads the chat to update the UI
     }
+    // Function to join a room
+function joinRoom() {
+    const roomCode = document.getElementById('roomCode').value.trim();
+    if (roomCode) {
+        // Unsubscribe from the current room
+        pubnub.unsubscribe({
+            channels: [currentRoom],
+        });
+
+        // Subscribe to the new room
+        pubnub.subscribe({
+            channels: [roomCode],
+            withPresence: true,
+        });
+
+        currentRoom = roomCode;
+    }
+}
+
+// Function to leave the current room
+function leaveRoom() {
+    // Unsubscribe from the current room
+    pubnub.unsubscribe({
+        channels: [currentRoom],
+    });
+
+    // Subscribe back to the main room or another default room
+    pubnub.subscribe({
+        channels: ['main_room'], // You can change this to your main room channel
+        withPresence: true,
+    });
+
+    currentRoom = 'main_room'; // Update the current room variable
+}
+
 </script>
 </body>
 </html>
