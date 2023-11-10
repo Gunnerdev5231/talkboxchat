@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Talkbox</title>
+    <title>Talkbox</title> <!-- Updated title to "Talkbox" -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
@@ -29,21 +29,6 @@
             overflow-y: auto;
             padding: 20px;
             background: #000;
-            scrollbar-width: thin;
-            scrollbar-color: #A060FF #000;
-        }
-
-        #messages::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #messages::-webkit-scrollbar-track {
-            background: #000;
-        }
-
-        #messages::-webkit-scrollbar-thumb {
-            background-color: #A060FF;
-            border-radius: 4px;
         }
 
         #input {
@@ -69,7 +54,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 5px;
+            margin-left: 5px; /* Added spacing between buttons */
         }
 
         .message {
@@ -160,21 +145,29 @@
         loadChatFromLocalStorage();
     }
     
-    // Update the displayMessage function to save messages and display them
     function displayMessage(message, senderName, isMyMessage) {
-        const messagesDiv = document.getElementById('messages');
-        const messageElem = document.createElement('div');
-        messageElem.classList.add('message');
-        if (isMyMessage) {
-            messageElem.classList.add('my-message');
-            messageElem.textContent = `You: ${message}`;
-        } else {
-            messageElem.classList.add('other-message');
-            messageElem.textContent = `${senderName}: ${message}`;
-        }
-        messagesDiv.appendChild(messageElem);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    const messagesDiv = document.getElementById('messages');
+    const messageElem = document.createElement('div');
+    messageElem.classList.add('message');
+    
+    const now = new Date();
+    const hours = now.getHours() % 12 || 12; // 12-hour format
+    const minutes = now.getMinutes();
+    const ampm = now.getHours() < 12 ? 'AM' : 'PM';
+    
+    const timeString = `${hours}:${(minutes < 10 ? '0' : '')}${minutes} ${ampm}`;
+    
+    if (isMyMessage) {
+        messageElem.classList.add('my-message');
+        messageElem.textContent = `You (${timeString}): ${message}`;
+    } else {
+        messageElem.classList.add('other-message');
+        messageElem.textContent = `${senderName} (${timeString}): ${message}`;
     }
+    
+    messagesDiv.appendChild(messageElem);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 
     // Function to publish messages
     function publishMessage() {
@@ -198,6 +191,12 @@
                 }
             });
         }
+    }
+
+    function clearChatHistory() {
+    localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML = ''; // Clears the chat messages from the display
     }
 </script>
 </body>
