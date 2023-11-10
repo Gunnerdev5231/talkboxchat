@@ -1,2 +1,0 @@
-[build]
-  publish = "public" # This should point to your build output directory
