@@ -149,10 +149,13 @@
             cursor: pointer;
         }
 
-        /* Dark theme */
+        * Dark theme */
         .dark-theme {
             background-color: #000;
             color: #fff;
+        }
+        .dark-theme #chat {
+            background-color: #222; /* Change the background color for dark theme */
         }
 
         /* Light theme */
@@ -160,10 +163,13 @@
             background-color: #fff;
             color: #000;
         }
+        .light-theme #chat {
+            background-color: #f5f5f5; /* Change the background color for light theme */
+        }
 
     </style>
 </head>
-<body>
+<body class="dark-theme">
 <div id="chat">
     <div id="messages"></div>
     <div id="input">
