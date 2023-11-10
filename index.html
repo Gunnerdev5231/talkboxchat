@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talkbox</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-         body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -19,7 +19,7 @@
             height: 90vh;
             max-width: 600px;
             margin: auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             background: #000;
         }
 
@@ -71,29 +71,26 @@
         }
 
         .material-icons {
-    font-family: 'Material Icons Outlined', sans-serif;
-    font-size: 24px;
-    color: #A060FF;
-}
-
+            font-size: 24px;
+            color: #A060FF;
+        }
 
         /* Style for the scrollbar track */
-#messages::-webkit-scrollbar {
-    width: 10px;
-}
+        #messages::-webkit-scrollbar {
+            width: 10px;
+        }
 
-/* Style for the scrollbar thumb */
-#messages::-webkit-scrollbar-thumb {
-    background-color: #A060FF;
-    border-radius: 5px;
-}
+        /* Style for the scrollbar thumb */
+        #messages::-webkit-scrollbar-thumb {
+            background-color: #A060FF;
+            border-radius: 5px;
+        }
 
-/* Style for the scrollbar track and thumb on Firefox */
-#messages {
-    scrollbar-width: thin;
-    scrollbar-color: #A060FF #000;
-}
-
+        /* Style for the scrollbar track and thumb on Firefox */
+        #messages {
+            scrollbar-width: thin;
+            scrollbar-color: #A060FF #000;
+        }
     </style>
 </head>
 <body>
@@ -111,14 +108,14 @@
     function generateUUID() {
         return crypto.randomUUID();
     }
-    
+
     // Get or generate a UUID
     let uuid = localStorage.getItem('uuid');
     if (!uuid) {
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
     }
-    
+
     // Ask for the user's name
     let userName = localStorage.getItem('userName');
     if (!userName) {
@@ -129,36 +126,36 @@
             userName = 'Guest'; // Default name if none is provided
         }
     }
-    
+
     // Initialize PubNub
     const pubnub = new PubNub({
         publishKey: 'pub-c-496a5feb-a06b-4ede-b430-bb6b1488a5b7',
         subscribeKey: 'sub-c-667e5de6-a5e5-4c03-a822-0a6795ab9d90',
         uuid: uuid
     });
-    
+
     // Function to save chat to local storage
     function saveChatToLocalStorage(message, senderName, isMyMessage) {
         let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
         chatHistory.push({ message, senderName, isMyMessage, timestamp: new Date().toISOString() });
         localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
-    
+
     // Function to load chat from local storage
     function loadChatFromLocalStorage() {
         let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
         const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = '';  // Clear existing messages from the display
+        messagesDiv.innerHTML = ''; // Clear existing messages from the display
         chatHistory.forEach(chat => {
             displayMessage(chat.message, chat.senderName, chat.isMyMessage);
         });
     }
-    
+
     // Call loadChatFromLocalStorage when the page loads
-    window.onload = function() {
+    window.onload = function () {
         loadChatFromLocalStorage();
     }
-    
+
     // Update the displayMessage function to save messages and display them
     function displayMessage(message, senderName, isMyMessage) {
         const messagesDiv = document.getElementById('messages');
@@ -179,10 +176,10 @@
         channels: ['chat_channel'],
         withPresence: true
     });
-    
+
     // Listen for incoming messages
     pubnub.addListener({
-        message: function(event) {
+        message: function (event) {
             if (event.publisher !== uuid) {
                 displayMessage(event.message.text, event.message.senderName, false);
                 saveChatToLocalStorage(event.message.text, event.message.senderName, false);
@@ -198,7 +195,7 @@
             pubnub.publish({
                 channel: 'chat_channel',
                 message: { text: messageContent, senderName: userName }
-            }, function(status, response) {
+            }, function (status, response) {
                 if (status.error) {
                     // Handle error here
                     console.log(status);
@@ -215,12 +212,12 @@
     }
 
     function clearChat() {
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.innerHTML = ''; // Clears the chat messages from the display
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML = ''; // Clears the chat messages from the display
 
-    // Clear the chat history from local storage
-    localStorage.removeItem('chatHistory');
-}
+        // Clear the chat history from local storage
+        localStorage.removeItem('chatHistory');
+    }
 
 </script>
 </body>
