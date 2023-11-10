@@ -54,6 +54,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-left: 5px; /* Added spacing between buttons */
         }
 
         .message {
@@ -85,7 +86,7 @@
 <div id="chat">
     <div id="messages"></div>
     <div id="input">
-        <input type="text" id="messageBox" placeholder="Type your message...">
+        <input type="text" id="messageBox" placeholder="Type your message..." onkeydown="if (event.key === 'Enter') publishMessage()">
         <button onclick="publishMessage()"><i class="material-icons">send</i></button>
         <button onclick="clearChatHistory()"><i class="material-icons">clear</i></button>
     </div>
@@ -150,7 +151,11 @@
     messageElem.classList.add('message');
     
     const now = new Date();
-    const timeString = `${now.getHours()}:${(now.getMinutes() < 10 ? '0' : '')}${now.getMinutes()}`;
+    const hours = now.getHours() % 12 || 12; // 12-hour format
+    const minutes = now.getMinutes();
+    const ampm = now.getHours() < 12 ? 'AM' : 'PM';
+    
+    const timeString = `${hours}:${(minutes < 10 ? '0' : '')}${minutes} ${ampm}`;
     
     if (isMyMessage) {
         messageElem.classList.add('my-message');
@@ -196,4 +201,3 @@
 </script>
 </body>
 </html>
-
