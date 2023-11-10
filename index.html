@@ -87,7 +87,7 @@
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()"><i class="material-icons">send</i></button>
-        <button onclick="clearChatHistory()"><i class="material-icons">mop</i></button>
+        <button onclick="clearChatHistory()"><i class="material-icons">clear</i></button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -144,21 +144,25 @@
         loadChatFromLocalStorage();
     }
     
-    // Update the displayMessage function to save messages and display them
     function displayMessage(message, senderName, isMyMessage) {
-        const messagesDiv = document.getElementById('messages');
-        const messageElem = document.createElement('div');
-        messageElem.classList.add('message');
-        if (isMyMessage) {
-            messageElem.classList.add('my-message');
-            messageElem.textContent = `You: ${message}`;
-        } else {
-            messageElem.classList.add('other-message');
-            messageElem.textContent = `${senderName}: ${message}`;
-        }
-        messagesDiv.appendChild(messageElem);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    const messagesDiv = document.getElementById('messages');
+    const messageElem = document.createElement('div');
+    messageElem.classList.add('message');
+    
+    const now = new Date();
+    const timeString = `${now.getHours()}:${(now.getMinutes() < 10 ? '0' : '')}${now.getMinutes()}`;
+    
+    if (isMyMessage) {
+        messageElem.classList.add('my-message');
+        messageElem.textContent = `You (${timeString}): ${message}`;
+    } else {
+        messageElem.classList.add('other-message');
+        messageElem.textContent = `${senderName} (${timeString}): ${message}`;
     }
+    
+    messagesDiv.appendChild(messageElem);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 
     // Function to publish messages
     function publishMessage() {
@@ -192,3 +196,4 @@
 </script>
 </body>
 </html>
+
