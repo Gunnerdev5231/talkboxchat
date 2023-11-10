@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talkbox</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
@@ -32,6 +33,7 @@
 
         #input {
             display: flex;
+            align-items: center; /* Center the items vertically */
             padding: 10px;
             color: #A060FF;
         }
@@ -51,6 +53,11 @@
             color: black;
             border: none;
             border-radius: 5px;
+        }
+
+        /* Add margin to the Clear button to create space */
+        #input button:last-child {
+            margin-left: 10px;
         }
 
         .message {
