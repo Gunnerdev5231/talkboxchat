@@ -6,7 +6,7 @@
     <title>Simple Chat Application</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body {
+       body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -70,6 +70,28 @@
             border-radius: 5px;
             cursor: pointer;
             margin-left: 5px;
+            position: relative;
+        }
+
+        #input button .tooltip {
+            visibility: hidden;
+            width: 100px;
+            background-color: #A060FF;
+            color: #000;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #input button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
         }
 
         #scrollToBottom {
@@ -226,7 +248,6 @@
     messagesDiv.innerHTML = ''; // Clears the chat messages from the display
     }
 
-    // Function to scroll to the bottom of the chat
     function scrollToBottom() {
         const messagesDiv = document.getElementById('messages');
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
