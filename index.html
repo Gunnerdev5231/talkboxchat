@@ -149,30 +149,16 @@
             cursor: pointer;
         }
 
-        * Dark theme */
+        /* Dark theme */
         .dark-theme {
             background-color: #000;
-            color: #000;
-        }
-        .dark-theme #chat {
-            background-color: #222; /* Change the background color for dark theme */
-        }
-
-        .dark-theme #message{
-            background-color: #f5f5f5;
+            color: #fff;
         }
 
         /* Light theme */
         .light-theme {
             background-color: #fff;
             color: #000;
-        }
-        .light-theme #chat {
-            background-color: #f5f5f5; /* Change the background color for light theme */
-        }
-
-        .light-theme #message{
-            background-color: #f5f5f5;
         }
 
     </style>
@@ -188,16 +174,19 @@
     </div>
 </div>
 <!-- Settings panel -->
-<div id="settings-panel" class="settings-panel">
-    <h2>Settings</h2>
-    <label for="userNameInput">Change Your Name:</label>
-    <input type="text" id="userNameInput" value="${userName}">
-    <label for="themeSelect">Select Theme:</label>
-    <select id="themeSelect">
-        <option value="dark">Dark</option>
-        <option value="light">Light</option>
-    </select>
-    <button onclick="applySettings()">Apply</button>
+<div id="settings-panel">
+    <div id="settings-panel-content">
+        <h2>Settings</h2>
+        <label for="username">Change Username:</label>
+        <input type="text" id="username" placeholder="Enter your new username">
+        <label for="theme">Choose Theme:</label>
+        <select id="theme">
+            <option value="dark">Dark Mode</option>
+            <option value="light">Light Mode</option>
+        </select>
+        <button onclick="saveSettings()">Save</button>
+        <button onclick="closeSettings()">Close</button>
+    </div>
 </div>
 
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -220,14 +209,17 @@
         const newUsername = document.getElementById('username').value;
         const newTheme = document.getElementById('theme').value;
 
-        // Add an event listener to update the user's name when it's changed in the settings panel
-document.getElementById('userNameInput').addEventListener('change', function() {
-    const newUserName = this.value.trim();
-    if (newUserName) {
-        userName = newUserName;
-        localStorage.setItem('userName', userName); // Update the user's name in local storage
+        // Save new preferences in localStorage
+        localStorage.setItem('userName', newUsername);
+        localStorage.setItem('theme', newTheme);
+
+        // Apply the selected theme
+        document.body.classList.remove('dark-theme', 'light-theme');
+        document.body.classList.add(newTheme + '-theme');
+
+        // Close the settings panel
+        closeSettings();
     }
-});
 
         // Save new preferences in localStorage
         localStorage.setItem('userName', newUsername);
