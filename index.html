@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talkbox</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        /* Your CSS styles here */
-        body {
+    body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -75,117 +72,22 @@
             font-size: 24px;
             color: #A060FF;
         }
-
-        #auth-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 50px;
-        }
-
-        #login-form,
-        #signup-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 10px;
-        }
-
-        #login-email,
-        #signup-display-name,
-        #signup-email {
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 <body>
-<div id="auth-container">
-    <div id="login-form">
-        <input type="email" id="login-email" placeholder="Email">
-        <input type="password" id="login-password" placeholder="Password">
-        <button onclick="signIn()">Log In</button>
-    </div>
-    <div id="signup-form">
-        <input type="text" id="signup-display-name" placeholder="Display Name">
-        <input type="email" id="signup-email" placeholder="Email">
-        <input type="password" id="signup-password" placeholder="Password">
-        <button onclick="signUp()">Sign Up</button>
-    </div>
-</div>
-<div id="chat" style="display: none;">
+<div id="chat">
     <div id="messages"></div>
     <div id="input">
-        <input type="text" id="messageBox" placeholder="Type your message..." disabled>
+        <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()" style="margin-left: 10px;"><i class="material-icons">send</i></button>
         <button onclick="clearChatHistory()" style="margin-left: 10px;"><i class="material-icons">delete</i></button>
-        <button onclick="signOut()" style="margin-left: 10px;">Sign Out</button>
+        <button onclick="login()" style="margin-left: 10px;">Login</button>
+        <button onclick="logout()" style="margin-left: 10px;">Logout</button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
-<script type="module">
-    // Import the functions you need from the Firebase SDKs
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-
-    // Firebase configuration
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
-
-    // Initialize Firebase
-    const firebaseApp = initializeApp(firebaseConfig);
-    const auth = getAuth(firebaseApp);
-
-    // Function to sign out the user
-    function signOut() {
-        firebaseSignOut(auth)
-            .then(() => {
-                // Redirect or handle sign-out success as needed
-                // For example, you can redirect to a sign-in page
-            })
-            .catch((error) => {
-                // Handle sign-out error
-                console.error("Sign-out error:", error);
-            });
-    }
-
-    // Import the functions you need from the Firebase SDKs
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyA1q2CABQm0DWVAMp_yCyiizt0tvIjHbAc",
-    authDomain: "talkboxchat-20646.firebaseapp.com",
-    projectId: "talkboxchat-20646",
-    storageBucket: "talkboxchat-20646.appspot.com",
-    messagingSenderId: "955786253919",
-    appId: "1:955786253919:web:de275445450e7092b9edea"
-  };
-
-  // Initialize Firebase
-  const firebaseApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseApp);
-
-  // Function to sign out the user
-  function signOut() {
-    firebaseSignOut(auth)
-      .then(() => {
-        // Redirect or handle sign-out success as needed
-        // For example, you can redirect to a sign-in page
-      })
-      .catch((error) => {
-        // Handle sign-out error
-        console.error("Sign-out error:", error);
-      });
-  }
-
- function generateUUID() {
+<script src="https://cdn.auth0.com/js/lock/11.28/lock.min.js"></script>
+<script>
+     function generateUUID() {
         return crypto.randomUUID();
     }
     let uuid = localStorage.getItem('uuid');
@@ -193,15 +95,7 @@
         uuid = generateUUID();
         localStorage.setItem('uuid', uuid);
     }
-    let userName = localStorage.getItem('userName');
-    if (!userName) {
-        userName = prompt('Please enter your name:', 'Guest');
-        if (userName) {
-            localStorage.setItem('userName', userName);
-        } else {
-            userName = 'Guest';
-        }
-    }
+    
     const pubnub = new PubNub({
         publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
         subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
@@ -307,18 +201,35 @@ function clearChatHistory() {
     loadChatFromLocalStorage(); // Reloads the chat to update the UI
 }
 
-  // Example code for Firebase Authentication
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, you can access user information via 'user' variable
-      console.log("User is signed in:", user.displayName);
-    } else {
-      // User is signed out
-      console.log("User is signed out");
-      // You can handle the sign-out event here
-    }
-  });
+    // Auth0 configuration
+    const auth0Options = {
+        auth: {
+            responseType: 'token id_token',
+            params: {
+                scope: 'openid profile email',
+            },
+        },
+        autoclose: true,
+        rememberLastLogin: false,
+        theme: {
+            primaryColor: '#00E4E3',
+        },
+    };
 
+    const lock = new Auth0Lock('YOUR_AUTH0_CLIENT_ID', 'YOUR_AUTH0_DOMAIN', auth0Options);
+
+    function login() {
+        lock.show();
+    }
+
+    function logout() {
+        // Implement logout logic here
+    }
+
+    lock.on('authenticated', (authResult) => {
+        // Handle the authenticated user here
+    });
 </script>
 </body>
 </html>
+
