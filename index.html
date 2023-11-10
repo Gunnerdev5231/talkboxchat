@@ -148,6 +148,19 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        /* Dark theme */
+        .dark-theme {
+            background-color: #000;
+            color: #fff;
+        }
+
+        /* Light theme */
+        .light-theme {
+            background-color: #fff;
+            color: #000;
+        }
+
     </style>
 </head>
 <body>
@@ -177,7 +190,7 @@
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
 <script>
 
-     // Function to open settings panel
+    // Function to open settings panel
     function openSettings() {
         const settingsPanel = document.getElementById('settings-panel');
         settingsPanel.style.display = 'flex';
@@ -197,6 +210,10 @@
         // Save new preferences in localStorage
         localStorage.setItem('userName', newUsername);
         localStorage.setItem('theme', newTheme);
+
+        // Apply the selected theme
+        document.body.classList.remove('dark-theme', 'light-theme');
+        document.body.classList.add(newTheme + '-theme');
 
         // Close the settings panel
         closeSettings();
