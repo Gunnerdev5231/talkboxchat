@@ -99,7 +99,7 @@
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
         <button onclick="publishMessage()"><i class="material-icons">send</i></button>
-        <button onclick="clearChat()"><i class="material-icons">mop</i></button>
+        <button onclick="clearChat()"><i class="material-icons">delete</i></button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -170,6 +170,11 @@
         }
         messagesDiv.appendChild(messageElem);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        // Update the title to show the number of new messages
+        if (!document.hidden) {
+            document.title = 'Talkbox';
+        }
     }
 
     pubnub.subscribe({
@@ -177,12 +182,23 @@
         withPresence: true
     });
 
+    // Variable to keep track of new messages
+    let newMessageCount = 0;
+
     // Listen for incoming messages
     pubnub.addListener({
         message: function (event) {
             if (event.publisher !== uuid) {
                 displayMessage(event.message.text, event.message.senderName, false);
                 saveChatToLocalStorage(event.message.text, event.message.senderName, false);
+
+                // Increment the new message count and update the title
+                newMessageCount++;
+                if (document.hidden) {
+                    document.title = `(${newMessageCount}) Talkbox`;
+                } else {
+                    document.title = 'Talkbox';
+                }
             }
         }
     });
@@ -211,14 +227,18 @@
         }
     }
 
+    // Function to clear the chat and reset the new message count
     function clearChat() {
         const messagesDiv = document.getElementById('messages');
         messagesDiv.innerHTML = ''; // Clears the chat messages from the display
 
         // Clear the chat history from local storage
         localStorage.removeItem('chatHistory');
-    }
 
+        // Reset the new message count and update the title
+        newMessageCount = 0;
+        document.title = 'Talkbox';
+    }
 </script>
 </body>
 </html>
