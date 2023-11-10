@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Chat Application</title>
+    <title>Talkbox</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-       body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -70,39 +70,6 @@
             border-radius: 5px;
             cursor: pointer;
             margin-left: 5px;
-            position: relative;
-        }
-
-        #input button .tooltip {
-            visibility: hidden;
-            width: 100px;
-            background-color: #A060FF;
-            color: #000;
-            text-align: center;
-            border-radius: 5px;
-            padding: 5px;
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        #input button:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        #scrollToBottom {
-            padding: 10px;
-            background-color: #00E4E3;
-            color: #000;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 5px;
-            display: none; /* Initially hidden */
         }
 
         .message {
@@ -137,7 +104,6 @@
         <input type="text" id="messageBox" placeholder="Type your message..." onkeydown="if (event.key === 'Enter') publishMessage()">
         <button onclick="publishMessage()"><i class="material-icons">send</i></button>
         <button onclick="clearChatHistory()"><i class="material-icons">clear</i></button>
-        <button id="scrollToBottom" onclick="scrollToBottom()"><i class="material-icons">arrow_downward</i></button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -166,13 +132,11 @@
     }
     
     // Initialize PubNub
-    // Initialize PubNub
     const pubnub = new PubNub({
-        publishKey: 'pub-c-496a5feb-a06b-4ede-b430-bb6b1488a5b7',
-        subscribeKey: 'sub-c-667e5de6-a5e5-4c03-a822-0a6795ab9d90',
+        publishKey: 'pub-c-f4cfb28e-9609-4f31-a449-85b846670476',
+        subscribeKey: 'sub-c-d598940a-f949-4733-b0c9-9ceb2f41ce1a',
         uuid: uuid
     });
-
     
     // Function to save chat to local storage
     function saveChatToLocalStorage(message, senderName, isMyMessage) {
@@ -196,29 +160,21 @@
         loadChatFromLocalStorage();
     }
     
+    // Update the displayMessage function to save messages and display them
     function displayMessage(message, senderName, isMyMessage) {
-    const messagesDiv = document.getElementById('messages');
-    const messageElem = document.createElement('div');
-    messageElem.classList.add('message');
-    
-    const now = new Date();
-    const hours = now.getHours() % 12 || 12; // 12-hour format
-    const minutes = now.getMinutes();
-    const ampm = now.getHours() < 12 ? 'AM' : 'PM';
-    
-    const timeString = `${hours}:${(minutes < 10 ? '0' : '')}${minutes} ${ampm}`;
-    
-    if (isMyMessage) {
-        messageElem.classList.add('my-message');
-        messageElem.textContent = `You (${timeString}): ${message}`;
-    } else {
-        messageElem.classList.add('other-message');
-        messageElem.textContent = `${senderName} (${timeString}): ${message}`;
+        const messagesDiv = document.getElementById('messages');
+        const messageElem = document.createElement('div');
+        messageElem.classList.add('message');
+        if (isMyMessage) {
+            messageElem.classList.add('my-message');
+            messageElem.textContent = `You: ${message}`;
+        } else {
+            messageElem.classList.add('other-message');
+            messageElem.textContent = `${senderName}: ${message}`;
+        }
+        messagesDiv.appendChild(messageElem);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-    
-    messagesDiv.appendChild(messageElem);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
 
     // Function to publish messages
     function publishMessage() {
@@ -243,24 +199,6 @@
             });
         }
     }
-
-    function clearChatHistory() {
-    localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.innerHTML = ''; // Clears the chat messages from the display
-    }
-
-    function scrollToBottom() {
-        const messagesDiv = document.getElementById('messages');
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    // Show the scroll-to-bottom button when there are messages to scroll
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.addEventListener('scroll', () => {
-        const scrollToBottomButton = document.getElementById('scrollToBottom');
-        scrollToBottomButton.style.display = messagesDiv.scrollTop < messagesDiv.scrollHeight - messagesDiv.clientHeight ? 'block' : 'none';
-    });
 </script>
 </body>
 </html>
