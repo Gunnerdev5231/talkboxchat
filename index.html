@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Chat Application</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        body {
+         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -21,7 +20,6 @@
             margin: auto;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             background: #000;
-            color: #A060FF;
         }
 
         #messages {
@@ -40,20 +38,18 @@
         #input input {
             flex-grow: 1;
             padding: 10px;
-            border: 1px solid #A060FF;
+            border: 1px solid #000;
             margin-right: 10px;
             border-radius: 5px;
-            background-color: #000;
-            color: #A060FF;
+            color: black;
         }
 
         #input button {
             padding: 10px;
             background-color: #00E4E3;
-            color: #000;
+            color: black;
             border: none;
             border-radius: 5px;
-            cursor: pointer;
         }
 
         .message {
@@ -66,13 +62,11 @@
         .my-message {
             background: #00E4E3;
             align-self: flex-end;
-            color: black;
         }
 
         .other-message {
-            background: #A060FF;
+            background: #fff;
             align-self: flex-start;
-            color: black;
         }
 
         .material-icons {
@@ -86,8 +80,7 @@
     <div id="messages"></div>
     <div id="input">
         <input type="text" id="messageBox" placeholder="Type your message...">
-        <button onclick="publishMessage()"><i class="material-icons">send</i></button>
-        <button onclick="clearChatHistory()"><i class="material-icons">clear</i></button>
+        <button onclick="publishMessage()">Send</button>
     </div>
 </div>
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.11.min.js"></script>
@@ -144,25 +137,21 @@
         loadChatFromLocalStorage();
     }
     
+    // Update the displayMessage function to save messages and display them
     function displayMessage(message, senderName, isMyMessage) {
-    const messagesDiv = document.getElementById('messages');
-    const messageElem = document.createElement('div');
-    messageElem.classList.add('message');
-    
-    const now = new Date();
-    const timeString = `${now.getHours()}:${(now.getMinutes() < 10 ? '0' : '')}${now.getMinutes()}`;
-    
-    if (isMyMessage) {
-        messageElem.classList.add('my-message');
-        messageElem.textContent = `You (${timeString}): ${message}`;
-    } else {
-        messageElem.classList.add('other-message');
-        messageElem.textContent = `${senderName} (${timeString}): ${message}`;
+        const messagesDiv = document.getElementById('messages');
+        const messageElem = document.createElement('div');
+        messageElem.classList.add('message');
+        if (isMyMessage) {
+            messageElem.classList.add('my-message');
+            messageElem.textContent = `You: ${message}`;
+        } else {
+            messageElem.classList.add('other-message');
+            messageElem.textContent = `${senderName}: ${message}`;
+        }
+        messagesDiv.appendChild(messageElem);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-    
-    messagesDiv.appendChild(messageElem);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
 
     // Function to publish messages
     function publishMessage() {
@@ -186,12 +175,6 @@
                 }
             });
         }
-    }
-
-    function clearChatHistory() {
-    localStorage.removeItem('chatHistory'); // Clears the chat history from local storage
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.innerHTML = ''; // Clears the chat messages from the display
     }
 </script>
 </body>
